@@ -23,13 +23,13 @@ export default function Command() {
     const svg = renderToString(<Svg />);
     fs.writeFileSync(environment.supportPath + "/face.svg", svg);
     // Convert SVG to PNG
-    const resvg = new Resvg(svg);
+    const resvg = new Resvg(svg, { fitTo: { mode: "original" } });
     const pngData = resvg.render();
     const pngBuffer = pngData.asPng();
     // Persist PNG to disk
     fs.writeFileSync(environment.supportPath + "/face.png", pngBuffer);
 
-    const markdownImg = `![SVG](data:image/png;base64,${Buffer.from(pngBuffer).toString('base64')}?raycast-height=350)`;
+    const markdownImg = `![SVG](data:image/png;base64,${Buffer.from(pngBuffer).toString("base64")}?raycast-height=350)`;
 
     setImg(markdownImg);
     setLoading(false);
