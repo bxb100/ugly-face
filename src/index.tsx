@@ -7,6 +7,7 @@ import { homedir } from "os";
 import { showFailureToast } from "@raycast/utils";
 import { initWasm, Resvg } from "../lib/resvg";
 import path from "node:path";
+import debounce from "lodash.debounce";
 
 const DOWNLOADS_DIR = `${homedir()}/Downloads`;
 
@@ -14,8 +15,9 @@ export default function Command() {
   const [img, setImg] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const generate = () => {
+  const generate = debounce(async () => {
     setLoading(true);
+    await showToast(Toast.Style.Animated, "Generating image");
 
     // Persist SVG to disk
     const svg = renderToString(<Svg />);
@@ -31,7 +33,8 @@ export default function Command() {
 
     setImg(markdownImg);
     setLoading(false);
-  };
+    await showToast(Toast.Style.Success, "Image Generated");
+  }, 250);
 
   const download = async (filename: string) => {
     try {
@@ -47,7 +50,7 @@ export default function Command() {
   useEffect(() => {
     (async () => {
       await initWasm(fs.readFileSync(path.join(environment.assetsPath, "index_bg.wasm")));
-      generate();
+      await generate();
     })();
   }, []);
 
