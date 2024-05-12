@@ -16,33 +16,28 @@ export default function Command() {
 
   const generate = () => {
     setLoading(true);
+
+    // Persist SVG to disk
     const svg = renderToString(<Svg />);
-    const markdownImg = `![SVG](data:image/svg+xml;base64,${btoa(svg)}?raycast-height=350)`;
-    fs.writeFileSync(environment.supportPath + "/icon.svg", svg);
+    fs.writeFileSync(environment.supportPath + "/face.svg", svg);
+    // Convert SVG to PNG
+    const resvg = new Resvg(svg);
+    const pngData = resvg.render();
+    const pngBuffer = pngData.asPng();
+    // Persist PNG to disk
+    fs.writeFileSync(environment.supportPath + "/face.png", pngBuffer);
+
+    const markdownImg = `![SVG](data:image/png;base64,${Buffer.from(pngBuffer).toString('base64')}?raycast-height=350)`;
+
     setImg(markdownImg);
     setLoading(false);
   };
 
-  const download = async () => {
+  const download = async (filename: string) => {
     try {
       await showToast(Toast.Style.Animated, "Downloading image", "Please wait...");
-      const data = fs.readFileSync(environment.supportPath + "/icon.svg");
-      fs.writeFileSync(DOWNLOADS_DIR + "/face.svg", data);
-      await showToast(Toast.Style.Success, "Image Downloaded!", DOWNLOADS_DIR);
-    } catch (error) {
-      await showFailureToast(error, { title: "Failed to download image" });
-    }
-  };
-
-  const downloadPng = async () => {
-    try {
-      await initWasm(fs.readFileSync(path.join(environment.assetsPath, "index_bg.wasm")));
-      await showToast(Toast.Style.Animated, "Downloading image", "Please wait...");
-      const data = fs.readFileSync(environment.supportPath + "/icon.svg");
-      const resvg = new Resvg(data);
-      const pngData = resvg.render();
-      const pngBuffer = pngData.asPng();
-      fs.writeFileSync(DOWNLOADS_DIR + "/face.png", pngBuffer);
+      const data = fs.readFileSync(environment.supportPath + `/${filename}`);
+      fs.writeFileSync(DOWNLOADS_DIR + `/${filename}`, data);
       await showToast(Toast.Style.Success, "Image Downloaded!", DOWNLOADS_DIR);
     } catch (error) {
       await showFailureToast(error, { title: "Failed to download image" });
@@ -50,7 +45,10 @@ export default function Command() {
   };
 
   useEffect(() => {
-    generate();
+    (async () => {
+      await initWasm(fs.readFileSync(path.join(environment.assetsPath, "index_bg.wasm")));
+      generate();
+    })();
   }, []);
 
   return (
@@ -60,11 +58,11 @@ export default function Command() {
       actions={
         <ActionPanel>
           <Action title={"Regenerate"} icon={Icon.Repeat} onAction={generate} />
-          <Action title={"Download PNG"} icon={Icon.Download} onAction={downloadPng} />
+          <Action title={"Download PNG"} icon={Icon.Download} onAction={() => download("face.png")} />
           <Action
             title={"Download SVG"}
             icon={Icon.Download}
-            onAction={download}
+            onAction={() => download("face.svg")}
             shortcut={{
               modifiers: ["cmd"],
               key: "d",
