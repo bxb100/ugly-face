@@ -6,6 +6,7 @@
   "icon": "face.png",
   "author": "Lemon",
   "license": "MIT",
+  "categories": ["Fun", "Media"],
   "commands": [
     {
       "name": "index",
