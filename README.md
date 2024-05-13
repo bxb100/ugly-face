@@ -27,5 +27,5 @@ You will need to have [Node.js](https://nodejs.org) and [pnpm](https://pnpm.io/)
 
 1. Clone this repo `git clone https://github.com/bxb100/ugly-face.git`
 2. Go to the folder `cd ugly-face`
-3. Install dependencies `pnpm install`
+3. Install dependencies `npm install`
 4. Go to Raycast, run `Import Extension` and select the folder
