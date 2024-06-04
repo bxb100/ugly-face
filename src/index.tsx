@@ -1,4 +1,15 @@
-import { Action, ActionPanel, Detail, environment, Form, Icon, showToast, Toast, useNavigation } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  Detail,
+  environment,
+  Form,
+  Icon,
+  render,
+  showToast,
+  Toast,
+  useNavigation,
+} from "@raycast/api";
 import { backgroundColors, hairColors, Svg } from "./components/Svg";
 import { renderToString } from "react-dom/server";
 import { useCallback, useEffect, useState } from "react";
@@ -11,7 +22,7 @@ import debounce from "lodash.debounce";
 
 const DOWNLOADS_DIR = `${homedir()}/Downloads`;
 
-export default function Command() {
+function Command() {
   const [img, setImg] = useState("");
   const [loading, setLoading] = useState(true);
   const [hairColor, setHairColor] = useState<string | null>(null);
@@ -59,15 +70,6 @@ export default function Command() {
       await showFailureToast(error, { title: "Failed to download image" });
     }
   };
-
-  useEffect(() => {
-    (async () => {
-      await initWasm(fs.readFileSync(path.join(environment.assetsPath, "index_bg.wasm"))).catch((e) =>
-        showFailureToast(e),
-      );
-      // await generate();
-    })();
-  }, []);
 
   useEffect(() => {
     generate();
@@ -204,3 +206,9 @@ const SizeForm = ({
     </Form>
   );
 };
+
+initWasm(fs.readFileSync(path.join(environment.assetsPath, "index_bg.wasm")))
+  .then(() => {
+    render(<Command />);
+  })
+  .catch((e) => showFailureToast(e));
