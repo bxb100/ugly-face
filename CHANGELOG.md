@@ -1,3 +1,6 @@
 # Ugly Face Changelog
 
-## [Initial Version] - {PR_MERGE_DATE}
+## [Feat] - 2024-06-04
+- Added custom configuration.
+
+## [Initial Version] - 2024-05-15
